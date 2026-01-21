@@ -2,13 +2,15 @@
 
 **Reconnect with your campus community, one message at a time.**
 
+> Built as part of a virtual internship project
+
 ---
 
 ## Why I Built This
 
 FadMann started from something I noticed during my first year: as our campus got bigger and everyone's schedules got busier, we were all losing touch with each other. I'd see people I knew from classes in the dining hall, but we'd just wave and keep walking. Study groups would fall apart because coordinating over email was a pain. And honestly? I missed those random conversations that used to happen when we all hung out in the same spots.
 
-So I decided to build something that could bring that back—a digital space where students can actually connect, whether it's coordinating study groups, sharing lecture notes, or just catching up between classes. I wanted it to feel like our campus lounge, not some corporate Slack clone. That's why the UI is clean but vibrant—college life should feel lively, you know?
+So I decided to build something that could bring that back—a digital space where students can actually connect, whether it's coordinating study groups, sharing lecture notes, or just catching up between classes. This project was developed as part of a virtual internship, where I learned to build full-stack applications with FastAPI, WebSockets, and modern web technologies.
 
 Think of FadMann as your digital campus lounge. Where conversations flow naturally and you don't have to dig through email chains to share a file.
 
