@@ -120,13 +120,13 @@ python run.py
 
 You should see something like:
 ```
-🚀 Starting FadMann...
-📱 Open http://localhost:8000 in your browser
-💡 Press Ctrl+C to stop
+Starting FadMann...
+Open http://localhost:8000 in your browser
+Press Ctrl+C to stop
 
 INFO:     Started server process
 INFO:     Waiting for application startup.
-✓ Database initialized
+Database initialized
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
@@ -366,6 +366,6 @@ MIT License - feel free to use this for your own projects or learn from it!
 
 ---
 
-**Built with ❤️ by Emmanuel Akwasi Opoku (@emmanuelakwasi) - CS Student @ Grambling State University**
+**Built by Emmanuel Akwasi Opoku (@emmanuelakwasi) - CS Student @ Grambling State University**
 
-Happy chatting! 🎓💬
+Happy chatting!

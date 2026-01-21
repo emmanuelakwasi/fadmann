@@ -139,9 +139,9 @@ async def startup_event():
             for room in rooms:
                 db.add(room)
             db.commit()
-            print("✓ Default rooms created")
+            print("Default rooms created")
         else:
-            print("✓ Database initialized")
+            print("Database initialized")
     finally:
         # Always close database session
         db.close()

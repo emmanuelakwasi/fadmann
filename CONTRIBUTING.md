@@ -73,4 +73,4 @@ This will run Black formatter and other checks before each commit. It's optional
 
 Feel free to open an issue with the "question" label if you're unsure about anything. We're all learning here!
 
-Thanks for helping make FadMann better! 🎓
+Thanks for helping make FadMann better!

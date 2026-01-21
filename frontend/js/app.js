@@ -528,8 +528,8 @@ function addMessage(message, animate = true) {
                 <div class="message-bubble">${escapeHtml(message.content)}</div>
                 ${reactionsHTML}
                 <div class="message-actions">
-                    <button class="action-btn" onclick="startReply(${message.id})" title="Reply">💬</button>
-                    <button class="action-btn" onclick="showReactionPicker(${message.id})" title="Add reaction">😀</button>
+                    <button class="action-btn" onclick="startReply(${message.id})" title="Reply">Reply</button>
+                    <button class="action-btn" onclick="showReactionPicker(${message.id})" title="Add reaction">React</button>
                 </div>
             </div>
         </div>

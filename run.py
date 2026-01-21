@@ -14,9 +14,9 @@ if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
     
     # Run the FastAPI app
-    print("🚀 Starting FadMann...")
-    print("📱 Open http://localhost:8000 in your browser")
-    print("💡 Press Ctrl+C to stop\n")
+    print("Starting FadMann...")
+    print("Open http://localhost:8000 in your browser")
+    print("Press Ctrl+C to stop\n")
     
     uvicorn.run(
         "backend.app:app",
