@@ -282,3 +282,5 @@ See `backend/AUTH_FLOW.md` for more details on how authentication works.
 ---
 
 **Built by Emmanuel Akwasi Opoku (@emmanuelakwasi) - CS Student @ Grambling State University**
+
+*Developed as part of a virtual internship project*
