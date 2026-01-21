@@ -30,10 +30,12 @@ load_dotenv()
 # DATABASE CONFIGURATION
 # ============================================================================
 
-# Get database directory from environment variable, default to "data"
-# For Render, you can set DATABASE_PATH to use a persistent disk
 DB_DIR = os.getenv("DATABASE_PATH", "data")
-os.makedirs(DB_DIR, exist_ok=True)
+try:
+    os.makedirs(DB_DIR, exist_ok=True)
+except (OSError, PermissionError):
+    DB_DIR = "/tmp/data"
+    os.makedirs(DB_DIR, exist_ok=True)
 
 # SQLite database URL
 # Format: sqlite:///./path/to/database.db

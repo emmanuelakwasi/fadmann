@@ -2,6 +2,7 @@ services:
   - type: web
     name: fadmann
     env: python
+    pythonVersion: "3.11"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -12,5 +13,5 @@ services:
       - key: JWT_EXPIRE_DAYS
         value: 7
       - key: DATABASE_PATH
-        value: /opt/render/project/src/data
+        value: /tmp/data
     healthCheckPath: /health
