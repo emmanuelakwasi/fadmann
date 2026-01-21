@@ -547,7 +547,6 @@ async def websocket_endpoint(
             data = await websocket.receive_json()
             
             if data["type"] == "message":
-            if data["type"] == "message":
                 content = data.get("content", "").strip()
                 is_valid, error = validate_message(content)
                 if not is_valid:
