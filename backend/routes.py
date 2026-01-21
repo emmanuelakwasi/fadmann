@@ -1,34 +1,5 @@
 """
 REST API Routes and WebSocket Endpoint
-
-This file contains all the HTTP endpoints (REST API) and the WebSocket endpoint
-for real-time chat functionality.
-
-ENDPOINTS PROVIDED:
-1. POST /api/auth/login - Login or create user (returns JWT token)
-2. GET /api/auth/me - Get current user info (requires JWT)
-3. GET /api/rooms - List all rooms
-4. POST /api/rooms - Create a new room (requires JWT)
-5. GET /api/rooms/{room_id}/messages - Get message history
-6. PUT /api/users/{user_id}/profile - Update user profile (requires JWT)
-7. GET /api/users/{user_id}/profile - Get user profile
-8. WebSocket /api/ws/{room_id} - Real-time chat connection (requires JWT)
-
-AUTHENTICATION:
-We use JWT (JSON Web Tokens) for authentication.
-- Tokens are signed and self-contained
-- Tokens expire after 7 days
-- Tokens are validated on every request
-- WebSocket connections also require valid JWT tokens
-
-AUTHENTICATION FLOW:
-1. User logs in → POST /api/auth/login
-2. Server creates JWT token with user info
-3. Token returned to frontend
-4. Frontend stores token in localStorage
-5. Frontend sends token in Authorization header: "Bearer {token}"
-6. Server validates token on each request
-7. If valid, request proceeds; if invalid, returns 401 Unauthorized
 """
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Header, Query
 from sqlalchemy.orm import Session
@@ -45,57 +16,28 @@ from backend.auth import create_access_token, verify_token, get_user_from_token,
 from backend.validation import validate_username, validate_room_name, validate_message, validate_display_name
 from backend.rate_limit import check_rate_limit
 
-# Create router with /api prefix - all routes will be under /api
 router = APIRouter(prefix="/api", tags=["api"])
 
-
-# ============================================================================
-# REQUEST/RESPONSE MODELS (Pydantic)
-# ============================================================================
-
 class LoginRequest(BaseModel):
-    """Request model for login endpoint."""
     username: str
     display_name: str
 
-
 class RoomCreateRequest(BaseModel):
-    """Request model for creating a room."""
     name: str
     description: str = ""
     is_public: bool = True
 
-
 class UserProfileUpdateRequest(BaseModel):
-    """Request model for updating user profile."""
     display_name: Optional[str] = None
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
 
-
 class ReactionRequest(BaseModel):
-    """Request model for adding/removing reactions."""
     emoji: str
 
-
 class ReplyRequest(BaseModel):
-    """Request model for replying to a message."""
     content: str
     reply_to: int
-
-
-# ============================================================================
-# AUTHENTICATION HELPERS
-# ============================================================================
-
-# Note: Authentication is now handled by backend.auth module
-# The get_current_user function is imported from there
-# It validates JWT tokens and returns User objects
-
-
-# ============================================================================
-# AUTHENTICATION ROUTES
-# ============================================================================
 
 @router.post("/auth/login")
 async def login(request: LoginRequest, db: Session = Depends(get_db)):
@@ -193,28 +135,6 @@ async def get_me(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Get current authenticated user's information.
-    
-    This endpoint requires a valid JWT token in the Authorization header.
-    
-    HOW IT WORKS:
-    1. Frontend sends: Authorization: "Bearer {token}"
-    2. get_current_user dependency validates the token
-    3. If valid: extracts user_id from token, queries database for user
-    4. If invalid: returns 401 Unauthorized
-    5. User object is injected into this function
-    
-    Args:
-        user: User object (automatically extracted from JWT token)
-        db: Database session (for querying user details)
-    
-    Returns:
-        Dictionary with user information
-    
-    Raises:
-        HTTPException 401: If token is invalid, expired, or missing
-    """
     return {
         "id": user.id,
         "username": user.username,
@@ -224,9 +144,6 @@ async def get_me(
     }
 
 
-# ============================================================================
-# ROOM ROUTES
-# ============================================================================
 
 @router.get("/rooms")
 async def get_rooms(
@@ -394,9 +311,6 @@ async def get_messages(
     return result
 
 
-# ============================================================================
-# MESSAGE REACTION ROUTES
-# ============================================================================
 
 @router.post("/messages/{message_id}/reactions")
 async def toggle_reaction(
@@ -465,9 +379,6 @@ async def toggle_reaction(
     }
 
 
-# ============================================================================
-# USER PROFILE ROUTES
-# ============================================================================
 
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(
@@ -560,9 +471,6 @@ async def update_user_profile(
     }
 
 
-# ============================================================================
-# WEBSOCKET ENDPOINT (Real-time Chat)
-# ============================================================================
 
 @router.websocket("/ws/{room_id}")
 async def websocket_endpoint(
@@ -609,34 +517,20 @@ async def websocket_endpoint(
     4. Process each message (save to DB, broadcast)
     5. Handle disconnection gracefully
     """
-    # ========================================================================
-    # STEP 1: AUTHENTICATION (JWT Validation)
-    # ========================================================================
-    
-    # Check if token was provided
     if not token:
         await websocket.close(code=4001, reason="No token provided")
         return
     
-    # Validate JWT token
-    # verify_token checks:
-    # - Token signature is valid (hasn't been tampered with)
-    # - Token hasn't expired
-    # - Token format is correct
     payload = verify_token(token)
     if not payload:
         await websocket.close(code=4001, reason="Invalid or expired token")
         return
     
-    # Extract user_id from token payload
-    # "sub" (subject) is the standard JWT field for user ID
     user_id = int(payload.get("sub"))
     if not user_id:
         await websocket.close(code=4001, reason="Invalid token payload")
         return
     
-    # Get user from database
-    # We need a database session to query the user
     db = SessionLocal()
     try:
         user = db.query(User).filter(User.id == user_id).first()
@@ -646,56 +540,35 @@ async def websocket_endpoint(
     finally:
         db.close()
     
-    # ========================================================================
-    # STEP 2: CONNECT TO ROOM
-    # ========================================================================
-    
-    # Connect user to room (this accepts the WebSocket and stores connection)
     await manager.connect(websocket, room_id, user_id)
     
-    # ========================================================================
-    # STEP 3: MESSAGE LOOP
-    # ========================================================================
-    
     try:
-        # Infinite loop - keeps connection alive and listens for messages
         while True:
-            # Wait for incoming message from client
-            # This blocks until a message arrives
             data = await websocket.receive_json()
             
-            # ================================================================
-            # HANDLE MESSAGE TYPE: "message"
-            # ================================================================
             if data["type"] == "message":
-                # Validate message content
+            if data["type"] == "message":
                 content = data.get("content", "").strip()
                 is_valid, error = validate_message(content)
                 if not is_valid:
-                    # Send error back to user
                     await websocket.send_json({
                         "type": "error",
                         "message": error
                     })
                     continue
                 
-                # Check rate limit
                 allowed, rate_error = check_rate_limit(user_id)
                 if not allowed:
-                    # Send rate limit error back to user
                     await websocket.send_json({
                         "type": "error",
                         "message": rate_error
                     })
                     continue
                 
-                # Create a new database session for this operation
                 db_session = SessionLocal()
                 try:
-                    # Get reply_to if provided
                     reply_to = data.get("reply_to")
                     if reply_to:
-                        # Verify the parent message exists and is in the same room
                         parent_msg = db_session.query(Message).filter(
                             Message.id == reply_to,
                             Message.room_id == room_id
@@ -707,21 +580,18 @@ async def websocket_endpoint(
                             })
                             continue
                     
-                    # Create message record in database
-                    # Note: created_at is automatically set by the model
                     message = Message(
                         room_id=room_id,
                         user_id=user_id,
-                        content=content,  # Use validated, trimmed content
-                        message_type=data.get("message_type", "text"),  # Default to "text"
+                        content=content,
+                        message_type=data.get("message_type", "text"),
                         reply_to=reply_to if reply_to else None,
-                        reactions={}  # Initialize empty reactions
+                        reactions={}
                     )
                     db_session.add(message)
                     db_session.commit()
-                    db_session.refresh(message)  # Get the generated ID and timestamp
+                    db_session.refresh(message)
                     
-                    # Get parent message info if this is a reply
                     reply_to_info = None
                     if message.reply_to:
                         parent = db_session.query(Message).filter(Message.id == message.reply_to).first()
@@ -732,8 +602,6 @@ async def websocket_endpoint(
                                 "display_name": parent.user.display_name
                             }
                     
-                    # Prepare message data for broadcasting
-                    # Use server-side timestamp from database
                     message_data = {
                         "type": "message",
                         "message": {
@@ -742,7 +610,7 @@ async def websocket_endpoint(
                             "username": user.username,
                             "display_name": user.display_name,
                             "content": message.content,
-                            "created_at": message.created_at.isoformat(),  # Server-side timestamp
+                            "created_at": message.created_at.isoformat(),
                             "message_type": message.message_type,
                             "reactions": message.reactions or {},
                             "reply_to": message.reply_to,
@@ -750,19 +618,11 @@ async def websocket_endpoint(
                         }
                     }
                     
-                    # Broadcast to ALL users in room (including sender)
-                    # This is what makes the chat real-time - everyone sees it instantly
                     await manager.broadcast_to_room(message_data, room_id)
                 finally:
-                    # Always close database session
                     db_session.close()
             
-            # ================================================================
-            # HANDLE MESSAGE TYPE: "typing"
-            # ================================================================
             elif data["type"] == "typing":
-                # Handle typing indicator
-                # Frontend sends this when user starts/stops typing
                 await manager.handle_typing(
                     room_id, 
                     user_id, 
@@ -770,11 +630,7 @@ async def websocket_endpoint(
                     user.username
                 )
             
-            # ================================================================
-            # HANDLE MESSAGE TYPE: "reaction"
-            # ================================================================
             elif data["type"] == "reaction":
-                # Handle emoji reaction via WebSocket (alternative to REST endpoint)
                 message_id = data.get("message_id")
                 emoji = data.get("emoji", "").strip()
                 
@@ -785,7 +641,6 @@ async def websocket_endpoint(
                     })
                     continue
                 
-                # Get message and verify it's in the current room
                 db_session = SessionLocal()
                 try:
                     message = db_session.query(Message).filter(
@@ -800,27 +655,22 @@ async def websocket_endpoint(
                         })
                         continue
                     
-                    # Initialize reactions if None
                     if message.reactions is None:
                         message.reactions = {}
                     
-                    # Toggle reaction
                     if emoji not in message.reactions:
                         message.reactions[emoji] = []
                     
                     if user_id in message.reactions[emoji]:
-                        # Remove reaction
                         message.reactions[emoji].remove(user_id)
                         if not message.reactions[emoji]:
                             del message.reactions[emoji]
                     else:
-                        # Add reaction
                         message.reactions[emoji].append(user_id)
                     
                     db_session.commit()
                     db_session.refresh(message)
                     
-                    # Broadcast reaction update
                     await manager.broadcast_to_room({
                         "type": "reaction_update",
                         "message_id": message.id,
@@ -829,22 +679,14 @@ async def websocket_endpoint(
                 finally:
                     db_session.close()
     
-    # ========================================================================
-    # STEP 4: CLEANUP ON DISCONNECT
-    # ========================================================================
-    
     except WebSocketDisconnect:
-        # User closed the connection (closed browser, navigated away, etc.)
-        # This is normal - user intentionally disconnected
         manager.disconnect(room_id, user_id)
-        # Notify others that user left
         await manager.broadcast_user_event(room_id, user_id, "user_left")
     
     except Exception as e:
-        # Handle any other errors gracefully
         print(f"WebSocket error: {e}")
         try:
             manager.disconnect(room_id, user_id)
             await manager.broadcast_user_event(room_id, user_id, "user_left")
         except Exception:
-            pass  # Ignore errors during cleanup
+            pass
