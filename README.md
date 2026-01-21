@@ -366,4 +366,6 @@ MIT License - feel free to use this for your own projects or learn from it!
 
 ---
 
-**Built with ❤️ by a student, for students. Happy chatting! 🎓💬**
+**Built with ❤️ by Emmanuel Akwasi Opoku (@emmanuelakwasi) - CS Student @ Grambling State University**
+
+Happy chatting! 🎓💬

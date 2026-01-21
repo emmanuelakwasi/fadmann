@@ -2,6 +2,9 @@
 """
 Simple script to run FadMann locally with one command.
 Works on Windows, macOS, and Linux.
+
+Author: Emmanuel Akwasi Opoku
+GitHub: https://github.com/emmanuelakwasi
 """
 import uvicorn
 import os

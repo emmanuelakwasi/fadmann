@@ -11,6 +11,9 @@ It's the entry point that ties everything together:
 
 When you run the app (python run.py), this file is loaded and
 the FastAPI app starts listening for HTTP requests.
+
+Author: Emmanuel Akwasi Opoku
+GitHub: https://github.com/emmanuelakwasi
 """
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
