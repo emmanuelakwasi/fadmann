@@ -16,7 +16,13 @@ let replyingTo = null; // Track which message we're replying to
 // INITIALIZATION
 // ============================================================================
 
+const appContainer = document.getElementById('app');
+
 document.addEventListener('DOMContentLoaded', () => {
+    if (!appContainer) {
+        console.error('App container not found!');
+        return;
+    }
     checkAuth();
 });
 
